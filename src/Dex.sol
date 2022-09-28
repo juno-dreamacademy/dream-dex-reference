@@ -21,8 +21,44 @@ contract Dex is ERC20 {
         external
         returns (uint256 outputAmount)
     {
-        // TODO
-        return 0;
+        uint256 balanceX = _tokenX.balanceOf(address(this));
+        uint256 balanceY = _tokenY.balanceOf(address(this));
+
+        uint256 k = balanceX * balanceY;
+
+        require(k != 0);
+
+        if (tokenXAmount == 0) {
+            // exchange Y to X
+            uint256 yAfter = balanceY + tokenYAmount;
+            uint256 xAfter = k / yAfter;
+
+            // Takes 0.1% fee, ignoring off-by-one
+            // (attack usually not profitable due to gas price)
+            uint256 xOut = (balanceX - xAfter) * 999 / 1000;
+            require(xOut >= tokenMinimumOutputAmount);
+
+            _tokenY.safeTransferFrom(msg.sender, address(this), tokenYAmount);
+            _tokenX.safeTransfer(msg.sender, xOut);
+
+            return xOut;
+        } else if (tokenYAmount == 0) {
+            // exchange X to Y
+            uint256 xAfter = balanceX + tokenXAmount;
+            uint256 yAfter = k / xAfter;
+
+            // Takes 0.1% fee, ignoring off-by-one
+            // (attack usually not profitable due to gas price)
+            uint256 yOut = (balanceY - yAfter) * 999 / 1000;
+            require(yOut >= tokenMinimumOutputAmount);
+
+            _tokenX.safeTransferFrom(msg.sender, address(this), tokenXAmount);
+            _tokenY.safeTransfer(msg.sender, yOut);
+
+            return yOut;
+        } else {
+            revert("DA-DEX: X or Y should be 0");
+        }
     }
 
     function addLiquidity(uint256 tokenXAmount, uint256 tokenYAmount, uint256 minimumLPTokenAmount)
@@ -57,6 +93,8 @@ contract Dex is ERC20 {
     function removeLiquidity(uint256 LPTokenAmount, uint256 minimumTokenXAmount, uint256 minimumTokenYAmount)
         external
     {
+        require(LPTokenAmount <= balanceOf(msg.sender));
+
         uint256 liquidity = balanceOf(address(this));
 
         uint256 balanceX = _tokenX.balanceOf(address(this));
@@ -73,6 +111,7 @@ contract Dex is ERC20 {
         _tokenY.safeTransfer(msg.sender, transferY);
     }
 
+    // From UniSwap core
     function sqrt(uint256 y) private pure returns (uint256 z) {
         if (y > 3) {
             z = y;
