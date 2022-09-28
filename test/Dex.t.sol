@@ -7,7 +7,5 @@ import "../src/Dex.sol";
 contract DexTest is Test {
     Dex public dex;
 
-    function setUp() public {
-        dex = new Dex();
-    }
+    function setUp() public {}
 }
