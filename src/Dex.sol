@@ -101,7 +101,7 @@ contract Dex is ERC20 {
     }
 
     function removeLiquidity(uint256 LPTokenAmount, uint256 minimumTokenXAmount, uint256 minimumTokenYAmount)
-        external
+        external returns (uint256 transferX, uint256 transferY)
     {
         require(LPTokenAmount <= balanceOf(msg.sender));
 
