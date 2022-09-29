@@ -65,6 +65,7 @@ contract Dex is ERC20 {
         external
         returns (uint256 LPTokenAmount)
     {
+        require(tokenXAmount != 0 && tokenYAmount != 0);
         uint256 xBefore = _tokenX.balanceOf(address(this));
         uint256 yBefore = _tokenY.balanceOf(address(this));
 
