@@ -237,4 +237,18 @@ contract DexTest is Test {
         (bool success, ) = address(dex).call(abi.encodeWithSelector(dex.swap.selector, 0, 6000 ether, uExpectedOutput * 1005 / 1000));
         assertTrue(!success, "Swap test fail 4; minimum ouput amount check failed");
     }
+
+    function testAddLiquidity7() external {
+        tokenX.transfer(address(dex), 1000 ether);
+        uint lp = dex.addLiquidity(3000 ether, 4000 ether, 0);
+        emit log_named_uint("LP", lp);
+
+        tokenX.transfer(address(dex), 1000 ether);
+        uint lp2 = dex.addLiquidity(5000 ether, 4000 ether, 0);
+        emit log_named_uint("LP", lp);
+
+        (uint rx, uint ry) = dex.removeLiquidity(lp, 0, 0);
+        assertEq(rx, 5000 ether, "rx failed");
+        assertEq(ry, 4000 ether, "ry failed");
+    }
 }
