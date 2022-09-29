@@ -65,11 +65,14 @@ contract Dex is ERC20 {
         external
         returns (uint256 LPTokenAmount)
     {
-        uint256 balanceX = _tokenX.balanceOf(address(this));
-        uint256 balanceY = _tokenY.balanceOf(address(this));
+        uint256 xBefore = _tokenX.balanceOf(address(this));
+        uint256 yBefore = _tokenY.balanceOf(address(this));
 
-        uint256 kBefore = balanceX * balanceY;
-        uint256 kAfter = (balanceX + tokenXAmount) * (balanceY + tokenYAmount);
+        uint256 xAfter = xBefore + tokenXAmount;
+        uint256 yAfter = yBefore + tokenYAmount;
+
+        uint256 kBefore = xBefore * yBefore;
+        uint256 kAfter = xAfter * yAfter;
 
         uint256 liquidityBefore = totalSupply();
 
@@ -77,7 +80,14 @@ contract Dex is ERC20 {
         if (liquidityBefore == 0 || kBefore == 0) {
             liquidityAfter = sqrt(kAfter);
         } else {
-            liquidityAfter = liquidityBefore * sqrt(kAfter) / sqrt(kBefore);
+            uint256 liquidityAfterWithX = liquidityBefore * xAfter / xBefore;
+            uint256 liquidityAfterWithY = liquidityBefore * yAfter / yBefore;
+
+            if (liquidityAfterWithX <= liquidityAfterWithY) {
+                liquidityAfter = liquidityAfterWithX;
+            } else {
+                liquidityAfter = liquidityAfterWithY;
+            }
         }
 
         uint256 toMint = liquidityAfter - liquidityBefore;
