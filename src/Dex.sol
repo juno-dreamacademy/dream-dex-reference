@@ -110,8 +110,8 @@ contract Dex is ERC20 {
         uint256 balanceX = _tokenX.balanceOf(address(this));
         uint256 balanceY = _tokenY.balanceOf(address(this));
 
-        uint256 transferX = balanceX * LPTokenAmount / liquidity;
-        uint256 transferY = balanceY * LPTokenAmount / liquidity;
+        transferX = balanceX * LPTokenAmount / liquidity;
+        transferY = balanceY * LPTokenAmount / liquidity;
 
         require(transferX >= minimumTokenXAmount);
         require(transferY >= minimumTokenYAmount);
