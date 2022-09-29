@@ -71,13 +71,13 @@ contract Dex is ERC20 {
         uint256 kBefore = balanceX * balanceY;
         uint256 kAfter = (balanceX + tokenXAmount) * (balanceY + tokenYAmount);
 
-        uint256 liquidityBefore = balanceOf(address(this));
+        uint256 liquidityBefore = totalSupply();
 
         uint256 liquidityAfter;
         if (liquidityBefore == 0 || kBefore == 0) {
             liquidityAfter = sqrt(kAfter);
         } else {
-            liquidityAfter = liquidityBefore * kAfter / kBefore;
+            liquidityAfter = liquidityBefore * sqrt(kAfter) / sqrt(kBefore);
         }
 
         uint256 toMint = liquidityAfter - liquidityBefore;
@@ -95,7 +95,7 @@ contract Dex is ERC20 {
     {
         require(LPTokenAmount <= balanceOf(msg.sender));
 
-        uint256 liquidity = balanceOf(address(this));
+        uint256 liquidity = totalSupply();
 
         uint256 balanceX = _tokenX.balanceOf(address(this));
         uint256 balanceY = _tokenY.balanceOf(address(this));
